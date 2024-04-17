@@ -1,10 +1,20 @@
 import imaplib
 import email
+import googlemaps
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import configparser
 
+def find_distance(start_point, end_point):
+    config = configparser.ConfigParser()
+    config.read('/Users/kamilgolawski/Nauka/Programowanie/pliki init/config.ini')
+    apiKey = config['API']['apiKey']
+    gmaps = googlemaps.Client(key=apiKey)
+    directions = gmaps.directions(start_point, end_point, mode="driving")
+    distance = directions[0]['legs'][0]['distance']['text']
+
+    return distance
 
 def fetch_email():
     config = configparser.ConfigParser()
@@ -41,14 +51,7 @@ def send_email(sender_email, sender_password, receiver_email, subject, body):
 
     print("Wiadomość została wysłana!")
 
-fetch_email()
-
-config = configparser.ConfigParser()
-config.read('/Users/kamilgolawski/Nauka/Programowanie/pliki init/config.ini')
-sender_email = config['EMAIL']['Username']
-sender_password = config['EMAIL']['Password']
-receiver_email = "kamilgolawski3@icloud.com"
-subject = "Testowa wiadomość do wysłania"
-body = "Treść testowej wiadomości"
-
-send_email(sender_email, sender_password, receiver_email, subject, body)
+start = "Warszawa, Polska"
+end = "Kraków, Polska"
+distance = find_distance(start, end)
+print("Odległość:", distance)
