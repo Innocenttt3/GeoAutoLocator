@@ -20,9 +20,10 @@ def calculate_distances(origins, destinations, api_key):
 
     for i, row in enumerate(distance_matrix['rows']):
         for j, element in enumerate(row['elements']):
-            distance = element.get('distance', {}).get('value', float('inf'))
+            distance_meters = element.get('distance', {}).get('value', float('inf'))
+            distance_km = distance_meters / 1000
             destination_name = destinations[j]
-            results.append((distance, destination_name))
+            results.append((distance_km, destination_name))
 
     shortest_distance = min(results, key=lambda x: x[0])
 
@@ -76,13 +77,21 @@ def send_email(sender_email, sender_password, receiver_email, subject, body):
 
 
 path_to_init_file = '/Users/kamilgolawski/Nauka/Programowanie/pliki init/config.ini'
+destinations_data = pd.read_excel("/Users/kamilgolawski/Nauka/Programowanie/Python/autoOdbiory/mcd.xlsx")
 main_config = configparser.ConfigParser()
 main_config.read(path_to_init_file)
+api_key = main_config['API']['apiKey']
+login = main_config['EMAIL']['Username']
+password = main_config['EMAIL']['Password']
 clients_emails = fetch_emails(main_config)
+top_prio_destinations = destinations_data[destinations_data['Priorytety'] == 1]['Adres'].tolist()
 
 if clients_emails is not None:
     print("Nowe wiadomości w skrzynce:")
     for client in clients_emails:
-        print(client)
+        destination_unit = calculate_distances(client.content, top_prio_destinations, api_key)
+        print(destination_unit)
+        content_string = str(destination_unit)
+        send_email(login, password, client.email, "auto odpowiedz", content_string)
 else:
     print("Brak nowych wiadomości")
