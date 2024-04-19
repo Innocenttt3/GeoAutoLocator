@@ -5,16 +5,24 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import configparser
+import pandas as pd
 
-def find_distance(start_point, end_point):
-    config = configparser.ConfigParser()
-    config.read('/Users/kamilgolawski/Nauka/Programowanie/pliki init/config.ini')
-    apiKey = config['API']['apiKey']
-    gmaps = googlemaps.Client(key=apiKey)
-    directions = gmaps.directions(start_point, end_point, mode="driving")
-    distance = directions[0]['legs'][0]['distance']['text']
 
-    return distance
+def calculate_distances(origins, destinations, api_key):
+
+    gmaps = googlemaps.Client(key=api_key)
+    distance_matrix = gmaps.distance_matrix(origins, destinations, mode="driving")
+    distances = []
+
+    for row in distance_matrix['rows']:
+        row_distances = []
+        for element in row['elements']:
+            distance = element.get('distance', {}).get('text', 'Unknown')
+            row_distances.append(distance)
+        distances.append(row_distances)
+
+    return distances
+
 
 def fetch_email():
     config = configparser.ConfigParser()
@@ -38,6 +46,7 @@ def fetch_email():
     mail.close()
     mail.logout()
 
+
 def send_email(sender_email, sender_password, receiver_email, subject, body):
     message = MIMEMultipart()
     message['From'] = sender_email
@@ -51,7 +60,18 @@ def send_email(sender_email, sender_password, receiver_email, subject, body):
 
     print("Wiadomość została wysłana!")
 
-start = "Warszawa, Polska"
-end = "Kraków, Polska"
-distance = find_distance(start, end)
-print("Odległość:", distance)
+
+start = ["Akademicka Lublin"]
+destinations_data = pd.read_excel("/Users/kamilgolawski/Nauka/Programowanie/Python/autoOdbiory/mcd.xlsx")
+designations = destinations_data['Adres'].tolist()
+print(designations)
+
+config = configparser.ConfigParser()
+config.read('/Users/kamilgolawski/Nauka/Programowanie/pliki init/config.ini')
+api_key = config['API']['apiKey']
+
+calculate_distances = calculate_distances(start, designations, api_key)
+
+for i, start in enumerate(start):
+    for j, destination in enumerate(designations):
+        print(f"Długość trasy między {start} a {destination}: {calculate_distances[i][j]}")
