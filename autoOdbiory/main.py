@@ -2,14 +2,14 @@ import imaplib
 import email
 import googlemaps
 import smtplib
+import email.utils
+import pandas as pd
+import configparser
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.header import decode_header
-import configparser
 from typing import Optional, List
 from client import Client
-import email.utils
-import pandas as pd
 
 
 def calculate_distances(origins, destinations, api_key):
@@ -29,9 +29,8 @@ def calculate_distances(origins, destinations, api_key):
 
     return shortest_distance
 
-def fetch_emails(config) -> Optional[List[Client]]:
-    login = config['EMAIL']['Username']
-    password = config['EMAIL']['Password']
+
+def fetch_emails(login, password) -> Optional[List[Client]]:
     mail = imaplib.IMAP4_SSL('imap.gmail.com')
     mail.login(login, password)
     mail.select('inbox')
@@ -47,8 +46,13 @@ def fetch_emails(config) -> Optional[List[Client]]:
                 encoded_sender = msg['From']
                 email_address = email.utils.parseaddr(encoded_sender)[1]
                 name = decode_header(encoded_sender)[0][0].decode('utf-8')
-                #payload = msg.get_payload()
-                content = msg.get_payload(decode=True).decode('utf-8')
+
+                payload = msg.get_payload()
+                if isinstance(payload, list):
+                    payload = payload[0]
+
+                content = payload if isinstance(payload, str) else payload.get_payload(decode=True).decode('utf-8')
+
                 client_id = len(emails_content) + 1
                 client = Client(client_id, email_address, content, name)
                 emails_content.append(client)
@@ -83,7 +87,7 @@ main_config.read(path_to_init_file)
 api_key = main_config['API']['apiKey']
 login = main_config['EMAIL']['Username']
 password = main_config['EMAIL']['Password']
-clients_emails = fetch_emails(main_config)
+clients_emails = fetch_emails(login, password)
 top_prio_destinations = destinations_data[destinations_data['Priorytety'] == 1]['Adres'].tolist()
 
 if clients_emails is not None:
