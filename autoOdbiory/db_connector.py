@@ -1,5 +1,6 @@
 import psycopg2
 import configparser
+from user import User
 
 class DatabaseConnector:
     def __init__(self, path_to_db_init):
@@ -51,8 +52,20 @@ class DatabaseConnector:
                 cursor.execute(query)
             self.connection.commit()
             print("Zapytanie zostało wykonane.")
+            return cursor.fetchall()
         except Exception as e:
             self.connection.rollback()
             print("Błąd podczas wykonywania zapytania:", e)
+            return None
         finally:
             cursor.close()
+
+    def user_exist(self, username, password):
+        hashed_password = User._hash_password(password)
+        query = "SELECT COUNT(*) FROM autoOdbiory.users WHERE username = %s AND password = %s"
+        result = self.execute_query(query, (username, hashed_password))
+        if result and result[0][0] > 0:
+            return True
+        else:
+            return False
+
