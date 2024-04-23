@@ -1,12 +1,12 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from werkzeug.utils import secure_filename
-
+import os
 from db_connector import DatabaseConnector
 from logic import EmailHandler
 
 app = Flask(__name__)
 app.secret_key = 'sekret'
-
+UPLOAD_FOLDER = '/Users/kamilgolawski/Nauka/Programowanie/Python/autoOdbiory/autoOdbiory/server storage'
 
 config_file_path = '/Users/kamilgolawski/Nauka/Programowanie/pliki init/config.ini'
 
@@ -31,6 +31,7 @@ from flask import request, redirect, url_for
 def upload():
     if 'logged_in_user' in session:
         username = session['logged_in_user']
+        existing_files = [f for f in os.listdir(UPLOAD_FOLDER) if os.path.isfile(os.path.join(UPLOAD_FOLDER, f))]
         if request.method == "POST" and 'file' in request.files:
             file = request.files['file']
             if file.filename != '':
@@ -38,9 +39,10 @@ def upload():
                 file.save(saved_file_path)
                 session['email_data_file_path'] = saved_file_path
                 return redirect(url_for("panel"))
-        return render_template("upload.html", username=username)
+        return render_template("upload.html", username=username, existing_files=existing_files)
     else:
         return redirect(url_for("login"))
+
 
 @app.route("/panel", methods=["GET", "POST"])
 def panel():

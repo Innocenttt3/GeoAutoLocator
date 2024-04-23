@@ -3,13 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload File</title>
+    <title>Upload</title>
 </head>
 <body>
-    <h1>Upload File</h1>
-    <form method="post" enctype="multipart/form-data">
+    <h1>Upload</h1>
+    <form action="/upload" method="post" enctype="multipart/form-data">
         <input type="file" name="file" id="file">
         <button type="submit">Upload</button>
+    </form>
+
+    <h2>Wybierz plik do użycia:</h2>
+    <form action="/panel" method="post">
+        <select name="selected_file">
+            {% for file in existing_files %}
+                <option value="{{ file }}">{{ file }}</option>
+            {% endfor %}
+        </select>
+        <input type="hidden" name="action" value="use_existing">
+        <button type="submit">Użyj wybranego pliku</button>
     </form>
 </body>
 </html>
