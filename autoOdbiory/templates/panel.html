@@ -7,11 +7,14 @@
 </head>
 <body>
     <h1>Panel</h1>
-    <p>Witaj, {{ username }}</p>
-    <form action="{{ url_for('panel') }}" method="post">
-        <button type="submit" name="action" value="start">Uruchom obsługę e-maili</button>
-        <button type="submit" name="action" value="stop">Zatrzymaj obsługę e-maili</button>
+    <p>Witaj, {{ username }}!</p>
+    <form action="/panel" method="post">
+        <input type="hidden" name="action" value="start">
+        <button type="submit">Start</button>
     </form>
-    <a href="{{ url_for('logout') }}">Wyloguj</a>
+    <form action="/panel" method="post">
+        <input type="hidden" name="action" value="stop">
+        <button type="submit">Stop</button>
+    </form>
 </body>
 </html>
