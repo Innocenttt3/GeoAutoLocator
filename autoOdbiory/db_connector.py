@@ -62,7 +62,7 @@ class DatabaseConnector:
 
     def user_exist(self, username, password):
         hashed_password = User._hash_password(password)
-        query = "SELECT COUNT(*) FROM autoOdbiory.users WHERE username = %s AND password = %s"
+        query = "SELECT COUNT(*) FROM autoOdbiory.users WHERE login = %s AND password = %s"
         result = self.execute_query(query, (username, hashed_password))
         if result and result[0][0] > 0:
             return True
