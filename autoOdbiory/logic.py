@@ -25,6 +25,10 @@ class EmailHandler:
     def set_email_data_file_path(self, email_data_file_path: str):
         self.email_data_file_path = email_data_file_path
 
+    def save_proces_info(self, path_to_json_file: str):
+        with open(path_to_json_file, "w") as json_file:
+            json.dump(self.proces_info, json_file, indent=4)
+
     def calculate_distances(self, origins, destinations, api_key):
         gmaps = googlemaps.Client(key=api_key)
 
@@ -128,7 +132,6 @@ class EmailHandler:
 
     def run_email_handler(self):
         while self.is_running:
-            print("dalej chodzi")
             self.process_emails()
             time.sleep(10)
 
@@ -137,6 +140,7 @@ class EmailHandler:
             self.is_running = True
             self.run_email_handler()
 
-    def stop_operations(self):
-        print("powinno sie zatrzymac")
+    def stop_operations(self, path_to_json_file):
         self.is_running = False
+        self.save_proces_info(path_to_json_file)
+        self.proces_info = []
