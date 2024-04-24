@@ -2,25 +2,24 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload</title>
 </head>
 <body>
-    <h1>Upload</h1>
+    <h1>Upload File</h1>
     <form action="/upload" method="post" enctype="multipart/form-data">
-        <input type="file" name="file" id="file">
-        <button type="submit">Upload</button>
+        <input type="file" name="file"><br><br>
+        <input type="submit" value="Upload">
     </form>
-
-    <h2>Wybierz plik do użycia:</h2>
-    <form action="/panel" method="post">
+    <h2>Existing Files</h2>
+    <form action="/upload" method="post">
         <select name="selected_file">
             {% for file in existing_files %}
                 <option value="{{ file }}">{{ file }}</option>
             {% endfor %}
         </select>
-        <input type="hidden" name="action" value="use_existing">
-        <button type="submit">Użyj wybranego pliku</button>
+        <input type="submit" value="Select">
     </form>
 </body>
 </html>

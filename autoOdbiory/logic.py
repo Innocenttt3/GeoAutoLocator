@@ -1,5 +1,6 @@
 import imaplib
 import email
+import json
 import googlemaps
 import smtplib
 import email.utils
@@ -11,12 +12,17 @@ from email.header import decode_header
 from typing import Optional, List
 from client import Client
 import time
+from datetime import datetime
 
 
 class EmailHandler:
-    def __init__(self, config_file_path: str, email_data_file_path: str):
+    def __init__(self, config_file_path: str):
         self.is_running = False
         self.config_file_path = config_file_path
+        self.email_data_file_path = None
+        self.proces_info = []
+
+    def set_email_data_file_path(self, email_data_file_path: str):
         self.email_data_file_path = email_data_file_path
 
     def calculate_distances(self, origins, destinations, api_key):
@@ -82,13 +88,12 @@ class EmailHandler:
             server.login(sender_email, sender_password)
             server.send_message(message)
 
-        print("Wiadomość została wysłana!")
+        print("Wiadomość została wysłana:" + body)
 
     def process_emails(self):
         main_config = configparser.ConfigParser()
         main_config.read(self.config_file_path)
         api_key = main_config['API']['apiKey']
-        print(api_key)
         login = main_config['EMAIL']['Username']
         password = main_config['EMAIL']['Password']
 
@@ -101,16 +106,31 @@ class EmailHandler:
             print("Nowe wiadomości w skrzynce:")
             for client in clients_emails:
                 destination_unit = self.calculate_distances(client.content, top_prio_destinations, api_key)
-                print(destination_unit)
                 content_string = str(destination_unit)
                 self.send_email(login, password, client.email, "auto odpowiedz", content_string)
+                response_info = {
+                    'new_emails': True,
+                    'received_at': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    'client_email': client.email,
+                    'response_generated': content_string
+                }
+                client.response_info = response_info
+                self.proces_info.append(response_info)
+                print(response_info)
         else:
             print("Brak nowych wiadomości")
+            response_info = {
+                'new_emails': False,
+                'received_at': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            }
+            self.proces_info.append(response_info)
+            print(response_info)
 
     def run_email_handler(self):
         while self.is_running:
+            print("dalej chodzi")
             self.process_emails()
-            time.sleep(60)
+            time.sleep(10)
 
     def start_operations(self):
         if not self.is_running:
@@ -118,4 +138,5 @@ class EmailHandler:
             self.run_email_handler()
 
     def stop_operations(self):
+        print("powinno sie zatrzymac")
         self.is_running = False

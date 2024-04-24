@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summary</title>
+</head>
+<body>
+    <h1>Summary</h1>
+    <h2>Operational History</h2>
+    <ul>
+        {% for entry in history %}
+            <li>{{ entry.timestamp }} - {{ entry.action }} - {{ entry.email_info }}</li>
+        {% endfor %}
+    </ul>
+    <a href="{{ url_for('download_history') }}">Download History (JSON)</a>
+</body>
+</html>

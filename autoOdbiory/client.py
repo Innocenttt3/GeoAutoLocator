@@ -6,6 +6,7 @@ class Client:
         self.email = email
         self.content = content
         self.name = name
+        self.response_info = None
 
     def __repr__(self):
         return f"Client(id={self.client_id}, email='{self.email}', name='{self.name}', content='{self.content}')"
