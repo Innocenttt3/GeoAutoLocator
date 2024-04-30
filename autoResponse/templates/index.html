@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Celery Countdown</title>
+</head>
+<body>
+    <h1>Celery Countdown</h1>
+    <button onclick="startCountdown()">Start Countdown</button>
+    <script>
+        function startCountdown() {
+            fetch('/start-countdown', {method: 'POST'})
+            .then(response => response.json())
+            .then(data => console.log(data));
+        }
+    </script>
+</body>
+</html>
