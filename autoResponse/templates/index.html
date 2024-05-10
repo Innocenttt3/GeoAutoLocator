@@ -1,17 +1,52 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Celery Countdown</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Handler Control Panel</title>
 </head>
 <body>
-    <h1>Celery Countdown</h1>
-    <button onclick="startCountdown()">Start Countdown</button>
-    <script>
-        function startCountdown() {
-            fetch('/start-countdown', {method: 'POST'})
-            .then(response => response.json())
-            .then(data => console.log(data));
-        }
-    </script>
+
+<h1>Email Handler Control Panel</h1>
+
+<p>Status: <span id="status-text">Loading...</span></p>
+
+<form id="control-form">
+    <button type="button" id="start-btn">Start Email Handler</button>
+    <button type="button" id="stop-btn">Stop Email Handler</button>
+</form>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function updateStatus() {
+        $.get('/status_email_handler', function (response) {
+            $('#status-text').text(response.is_running ? 'Running' : 'Stopped');
+        });
+    }
+
+    $(document).ready(function () {
+        updateStatus();
+    });
+
+    $('#start-btn').click(function () {
+        $.post('/start_email_handler', function (response) {
+            alert(response);
+            updateStatus();
+        }).fail(function (xhr) {
+            alert(xhr.responseText);
+        });
+    });
+
+
+    $('#stop-btn').click(function () {
+        $.post('/stop_email_handler', function (response) {
+            alert(response);
+            updateStatus();
+        }).fail(function (xhr) {
+            alert(xhr.responseText);
+        });
+    });
+</script>
+
 </body>
 </html>
